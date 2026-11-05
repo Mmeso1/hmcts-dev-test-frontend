@@ -1,0 +1,84 @@
+{% extends "template.njk" %}
+
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+
+{% set pageTitle = ("Error: " if errorList.length else "") + "Create a task" %}
+{% set dateErrorClass = " govuk-input--error" if errors.dueDate else "" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({ text: "Back to your tasks", href: "/" }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorList.length %}
+        {{ govukErrorSummary({ titleText: "There is a problem", errorList: errorList }) }}
+      {% endif %}
+
+      <h1 class="govuk-heading-l">Create a task</h1>
+
+      <form method="post" action="/tasks" novalidate>
+        {{ govukInput({
+          id: "title",
+          name: "title",
+          label: { text: "Title", classes: "govuk-label--s" },
+          value: values.title,
+          errorMessage: { text: errors.title } if errors.title else false
+        }) }}
+
+        {{ govukCharacterCount({
+          id: "description",
+          name: "description",
+          label: { text: "Description (optional)", classes: "govuk-label--s" },
+          maxlength: 2000,
+          value: values.description,
+          errorMessage: { text: errors.description } if errors.description else false
+        }) }}
+
+        {{ govukRadios({
+          idPrefix: "status",
+          name: "status",
+          fieldset: { legend: { text: "Status", classes: "govuk-fieldset__legend--s" } },
+          items: statusOptions,
+          value: values.status,
+          errorMessage: { text: errors.status } if errors.status else false
+        }) }}
+
+        {{ govukDateInput({
+          id: "dueDate",
+          namePrefix: "dueDate",
+          fieldset: { legend: { text: "Due date", classes: "govuk-fieldset__legend--s" } },
+          hint: { text: "For example, 27 3 2027" },
+          errorMessage: { text: errors.dueDate } if errors.dueDate else false,
+          items: [
+            { name: "day", classes: "govuk-input--width-2" + dateErrorClass, value: values.dueDay },
+            { name: "month", classes: "govuk-input--width-2" + dateErrorClass, value: values.dueMonth },
+            { name: "year", classes: "govuk-input--width-4" + dateErrorClass, value: values.dueYear }
+          ]
+        }) }}
+
+        {{ govukInput({
+          id: "dueTime",
+          name: "dueTime",
+          label: { text: "Due time", classes: "govuk-label--s" },
+          hint: { text: "Use the 24-hour clock, for example 09:30 or 14:00" },
+          classes: "govuk-input--width-5",
+          value: values.dueTime,
+          errorMessage: { text: errors.dueTime } if errors.dueTime else false
+        }) }}
+
+        <div class="govuk-button-group">
+          {{ govukButton({ text: "Create task" }) }}
+          <a class="govuk-link" href="/">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

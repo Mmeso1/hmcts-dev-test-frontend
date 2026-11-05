@@ -1,0 +1,6 @@
+{% macro statusTag(task) %}
+  <strong class="govuk-tag {{ statusTagClasses[task.status] }}">{{ statusLabels[task.status] }}</strong>
+  {%- if isOverdue(task) %}
+    <strong class="govuk-tag govuk-tag--red">Overdue</strong>
+  {%- endif %}
+{% endmacro %}

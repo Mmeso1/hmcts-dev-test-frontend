@@ -1,0 +1,54 @@
+{% extends "template.njk" %}
+
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "macros/status-tag.njk" import statusTag %}
+
+{% set pageTitle = task.title %}
+
+{% block beforeContent %}
+  {{ govukBackLink({ text: "Back to your tasks", href: "/" }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if created %}
+        {{ govukNotificationBanner({ type: "success", text: "Task created" }) }}
+      {% elif updated %}
+        {{ govukNotificationBanner({ type: "success", text: "Status updated to " + statusLabels[task.status] }) }}
+      {% endif %}
+
+      <span class="govuk-caption-l">Task</span>
+      <h1 class="govuk-heading-l">{{ task.title }}</h1>
+
+      {% set statusHtml %}{{ statusTag(task) }}{% endset %}
+
+      {{ govukSummaryList({
+        rows: [
+          { key: { text: "Status" }, value: { html: statusHtml } },
+          { key: { text: "Description" }, value: { text: task.description or "No description" } },
+          { key: { text: "Due" }, value: { text: task.due_date | formatDateTime } },
+          { key: { text: "Created" }, value: { text: task.created_at | formatDateTime } }
+        ]
+      }) }}
+
+      <form method="post" action="/tasks/{{ task.id }}/status" novalidate>
+        {{ govukSelect({
+          id: "status",
+          name: "status",
+          label: { text: "Change status", classes: "govuk-label--m" },
+          items: statusOptions,
+          value: task.status
+        }) }}
+
+        {{ govukButton({ text: "Update status", classes: "govuk-button--secondary" }) }}
+      </form>
+
+      {{ govukButton({ text: "Delete task", href: "/tasks/" + task.id + "/delete", classes: "govuk-button--warning" }) }}
+    </div>
+  </div>
+{% endblock %}

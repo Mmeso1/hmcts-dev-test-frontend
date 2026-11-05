@@ -1,5 +1,7 @@
 {% extends "govuk/template.njk" %}
 
+{% block pageTitle %}{% if pageTitle %}{{ pageTitle }} - {% endif %}{{ serviceName }} - GOV.UK{% endblock %}
+
 {% block head %}
   {% include "webpack/css.njk" %}
 {% endblock %}
